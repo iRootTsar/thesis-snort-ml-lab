@@ -49,9 +49,11 @@ thesis-snort-ml-lab/
 └── .gitmodules                      # only appears if you switch to submodules later
 ```
 
-### How to Reproduce This Workspace From Scratch
+---
 
-1. **Pre-install system dependencies** (Ubuntu 24.04 / Kali rolling)
+## How to Reproduce This Workspace From Scratch
+
+### 1. Pre-install system dependencies (Ubuntu 24.04 / Kali rolling)
 
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -65,7 +67,7 @@ sudo apt install -y build-essential cmake ninja-build git curl wget \
 sudo snap install code --classic
 ```
 
-2. **Create Python virtual environment** (for ML training / notebooks)
+### 2. Create Python virtual environment (for ML training / notebooks)
 
 ```bash
 python3 -m venv ~/snortml-venv
@@ -73,7 +75,62 @@ source ~/snortml-venv/bin/activate
 pip install --upgrade pip numpy pandas scikit-learn tensorflow jupyter notebook matplotlib scapy
 ```
 
-3. **Clone or initialize the repo** (if starting fresh)
+---
+
+## SSH Key Setup (Ubuntu → GitHub)
+
+If you are using SSH-based GitHub access (`git@github.com:...`), you must register your SSH key once.
+
+### 1. Check for existing key
+
+```bash
+ls -al ~/.ssh
+```
+
+If you see `id_ed25519` and `id_ed25519.pub`, you can reuse them.
+
+### 2. Generate a new SSH key (recommended: ed25519)
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+Press Enter to accept the default path.  
+Optionally set a passphrase.
+
+### 3. Start SSH agent and add key
+
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+
+### 4. Copy public key
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the entire output.
+
+### 5. Add key to GitHub
+
+- Go to: https://github.com/settings/keys  
+- Click **New SSH key**  
+- Paste your public key  
+- Save  
+
+### 6. Test connection
+
+```bash
+ssh -T git@github.com
+```
+
+You should see a message confirming authentication.
+
+---
+
+### 3. Clone or initialize the repo (if starting fresh)
 
 ```bash
 git clone git@github.com:iRootTsar/thesis-snort-ml-lab.git
@@ -82,7 +139,7 @@ cd thesis-snort-ml-lab
 # mkdir thesis-snort-ml-lab && cd thesis-snort-ml-lab && git init -b main
 ```
 
-4. **Add initial commit if repo is empty**
+### 4. Add initial commit if repo is empty
 
 ```bash
 echo "# Thesis SnortML Lab" > README.md
@@ -90,7 +147,7 @@ git add README.md
 git commit -m "Initial commit"
 ```
 
-5. **Add remotes** (if not already present)
+### 5. Add remotes (if not already present)
 
 ```bash
 git remote add origin          git@github.com:iRootTsar/thesis-snort-ml-lab.git
@@ -102,7 +159,7 @@ git remote add upstream-libdaq git@github.com:snort3/libdaq.git
 git remote add upstream-libml  git@github.com:snort3/libml.git
 ```
 
-6. **Add subtrees** (only needed once)
+### 6. Add subtrees (only needed once)
 
 ```bash
 git subtree add --prefix=repos/snort3  --squash fork-snort3 master
@@ -110,42 +167,50 @@ git subtree add --prefix=repos/libdaq  --squash fork-libdaq master
 git subtree add --prefix=repos/libml   --squash fork-libml  master
 ```
 
-7. **Build everything**
+### 7. Build everything
 
 ```bash
 ./scripts/build_all.sh
 ```
 
-8. **Quick test**
+### 8. Quick test
 
 ```bash
 ./scripts/test_smoke.sh
 ```
 
-### Daily Workflow Summary
+---
+
+## Daily Workflow Summary
 
 - **Update forks** (get latest from your forks' master branches)  
+
   ```bash
   ./scripts/sync_upstream.sh
   ./scripts/build_all.sh   # only if code changed
   ```
 
 - **Start new feature**  
+
   ```bash
   git checkout -b feature/my-cool-idea
   ```
 
 - **Commit changes safely**  
+
   ```bash
   ./scripts/commit_feature.sh "short description of what you did"
   ```
 
 - **Push feature branch to your fork** (example for snort3 changes)  
+
   ```bash
   git subtree push --prefix=repos/snort3 fork-snort3 feature/my-cool-idea
   ```
 
-### System Dependencies Summary (requirements-system.txt style)
+---
+
+## System Dependencies Summary (requirements-system.txt style)
 
 Copy this block into a file called `INSTALL_DEPENDENCIES.md` or `requirements-system.txt`:
 
@@ -174,4 +239,3 @@ code (via snap install code --classic)
 # Optional: for later CppUTest unit tests
 # git clone https://github.com/cpputest/cpputest.git && cd cpputest && mkdir build && cd build && cmake .. && make && sudo make install
 ```
-
