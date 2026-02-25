@@ -239,3 +239,16 @@ code (via snap install code --classic)
 # Optional: for later CppUTest unit tests
 # git clone https://github.com/cpputest/cpputest.git && cd cpputest && mkdir build && cd build && cmake .. && make && sudo make install
 ```
+
+---
+
+## Key Citations
+
+- Official Snort 3 Installation Guide: https://docs.snort.org/start/installation  
+- Snort 3 GitHub repository: https://github.com/snort3/snort3  
+- libdaq (Snort 3 fork): https://github.com/snort3/libdaq  
+- libml (TensorFlow Lite wrapper): https://github.com/snort3/libml  
+- Git subtree documentation and best practices: https://git-scm.com/docs/git-subtree  
+- Ubuntu package names and Snort dependencies: https://packages.ubuntu.com/noble  
+- Virtualenv PATH issues & solutions: https://github.com/pypa/virtualenv/issues  
+- Zenarmor Snort 3 on Ubuntu guide (package list reference): https://www.zenarmor.com/docs/linux-tutorials/how-to-install-and-configure-snort-on-ubuntu-linux  
