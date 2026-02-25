@@ -19,7 +19,7 @@ The main goal is to have **one single git repository** containing:
 
 ### Repository Layout
 
-```
+```text
 thesis-snort-ml-lab/
 ├── repos/                           # git subtrees of the three core projects (master branch)
 │   ├── snort3/                      # main Snort 3 engine + inspectors + SnortML
@@ -173,39 +173,167 @@ git subtree add --prefix=repos/libml   --squash fork-libml  master
 ./scripts/build_all.sh
 ```
 
-### 8. Quick test
+### 8. Quick test (smoke test)
 
 ```bash
 ./scripts/test_smoke.sh
 ```
 
+### 9. Verify the working Snort + DAQ state (expected result after fixes)
+
+Your setup is considered working when the smoke test and direct checks confirm the following:
+
+- **Snort++ version 3.10.2.0** is found and running
+- **DAQ version 3.0.24** is detected
+- Full DAQ module list is printed (for example: `afpacket`, `bpf`, `dump`, `fst`, `gwlb`, `nfq`, `pcap`, `savefile`, `trace`)
+- No **`No available DAQ modules`** error appears
+
+Run these checks manually if needed:
+
+```bash
+which snort
+snort -V
+snort --daq-list
+./scripts/test_smoke.sh
+```
+
+Expected behavior in this workspace (current working state):
+
+- `snort` is found at `/usr/local/snort/bin/snort`
+- DAQ modules are **auto-discovered**
+- No manual `--daq-dir` flag is required for `snort --daq-list`
+- Smoke test passes cleanly and prints the DAQ modules
+
+---
+
+## Important Notes (after DAQ discovery fix)
+
+### DAQ discovery is solved
+
+If your smoke test passes and `snort --daq-list` prints modules, the DAQ discovery issue is fixed.  
+In this setup, the final working state is:
+
+- **No manual `--daq-dir` needed**
+- **No special flags needed in normal commands**
+- **Snort + DAQ work with default discovery**
+
+### PATH / shell reload note
+
+If you build/install Snort and then the shell does not find it immediately, reload your shell environment:
+
+```bash
+source ~/.bashrc
+hash -r
+```
+
+Then retry:
+
+```bash
+snort -V
+snort --daq-list
+```
+
+### `sudo` note (common confusion)
+
+For normal validation commands (`snort -V`, `snort --daq-list`, `./scripts/test_smoke.sh`), **you should not need `sudo`**.
+
+Using `sudo` can cause confusion because it may use a different `PATH` than your normal shell.  
+If you must run a command with `sudo`, verify what `PATH` it sees:
+
+```bash
+echo "$PATH"
+sudo env | grep ^PATH=
+```
+
+(But for the smoke test and version/DAQ checks, use normal user commands.)
+
+---
+
+## Troubleshooting (quick reference)
+
+### Symptom: `snort: command not found`
+
+Try:
+
+```bash
+source ~/.bashrc
+hash -r
+which snort
+```
+
+If installed correctly, you should see:
+
+```text
+/usr/local/snort/bin/snort
+```
+
+### Symptom: `No available DAQ modules`
+
+In the current working setup, this should **not** happen after a successful build/install and shell reload.
+
+Check:
+
+```bash
+snort --daq-list
+./scripts/test_smoke.sh
+```
+
+If it still happens, verify:
+
+- `libdaq` was built and installed before `snort3`
+- Your shell environment is reloaded (`source ~/.bashrc`)
+- You are not accidentally testing with a different `snort` binary in `PATH`
+
+Confirm binary path:
+
+```bash
+which snort
+```
+
+---
+
+## Current Status Summary (known-good setup)
+
+- **Snort binary**: found at `/usr/local/snort/bin/snort`
+- **DAQ modules**: auto-discovered (no `--daq-dir` needed)
+- **Smoke test**: passes with full module list
+- **Setup status**: ready for thesis work (edit code, rebuild, test PCAPs, extend SnortML)
+
 ---
 
 ## Daily Workflow Summary
 
-- **Update forks** (get latest from your forks' master branches)  
+- **Update forks** (get latest from your forks' master branches)
 
   ```bash
   ./scripts/sync_upstream.sh
   ./scripts/build_all.sh   # only if code changed
   ```
 
-- **Start new feature**  
+- **Start new feature**
 
   ```bash
   git checkout -b feature/my-cool-idea
   ```
 
-- **Commit changes safely**  
+- **Commit changes safely**
 
   ```bash
   ./scripts/commit_feature.sh "short description of what you did"
   ```
 
-- **Push feature branch to your fork** (example for snort3 changes)  
+- **Push feature branch to your fork** (example for snort3 changes)
 
   ```bash
   git subtree push --prefix=repos/snort3 fork-snort3 feature/my-cool-idea
+  ```
+
+- **Re-run validation after changes** (recommended)
+
+  ```bash
+  ./scripts/build_all.sh
+  ./scripts/test_smoke.sh
+  snort --daq-list
   ```
 
 ---
